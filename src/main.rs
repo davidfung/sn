@@ -2,27 +2,31 @@ use chrono::prelude::*;
 use std::io;
 use webbrowser;
 
-fn current_episode() -> String {
+fn current_episode() -> i64 {
     let base_episode_no = 895;
     let base_episode_date = Local.ymd(2022, 11, 2).and_hms(0, 0, 0);
     let today = Local::now();
     let diff = today - base_episode_date;
-    let s = format!("{}", base_episode_no + diff.num_weeks());
-    s
+    return base_episode_no + diff.num_weeks();
 }
-
 fn main() {
-    let mut episode = current_episode();
-    println!("Enter Security Now episode no. [{}]> ", current_episode());
+    let current_episode = current_episode();
+    println!("Enter Security Now episode no. [{}]> ", current_episode);
 
-    let mut user_episode = String::new();
+    let mut str = String::new();
     io::stdin()
-        .read_line(&mut user_episode)
+        .read_line(&mut str)
         .expect("Failed to read line");
-    user_episode = format!("{}", user_episode.trim());
 
-    if user_episode != "" {
-        episode = user_episode;
+    let mut episode;
+
+    if str.trim() == "" {
+        episode = current_episode;
+    } else {
+        episode = str.trim().parse().expect("Expect a number.");
+        if episode < 0 {
+            episode = current_episode + episode;
+        }
     }
 
     let url = format!("https://www.grc.com/sn/sn-{episode}-notes.pdf");
